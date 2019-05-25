@@ -18,23 +18,29 @@
             android:layout_marginBottom="10dp"
             android:layout_gravity="center"/>
 
+          <android.support.design.widget.TextInputLayout
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content" >
 
-            <EditText
+              <EditText
+                  android:id="@+id/editName"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:hint="Название дела"
+                  android:textColor="@android:color/white" />
+          </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+                 <EditText
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:hint="Введите название дела"
-                android:textColor="@android:color/white"
-                android:id="@+id/editName"
-                />
-
-
-            <EditText
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:hint="Введите важность дела"
+                android:hint="Важность дела"
                 android:id="@+id/editImp"
-                android:inputType="number"
-                />
+                android:inputType="number" />
+
+    </android.support.design.widget.TextInputLayout>
 
 
 

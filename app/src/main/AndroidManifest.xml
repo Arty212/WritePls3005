@@ -15,7 +15,8 @@
         <activity android:name=".MainActivity"></activity>
         <activity
             android:name=".AutActivity"
-            android:label="WritePls">
+            android:label="WritePls"
+            android:noHistory="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

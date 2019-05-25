@@ -15,7 +15,7 @@
         android:layout_height="150dp"
         app:srcCompat="@drawable/lock"
         android:layout_gravity="center"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="30dp"
        />
 
     <TextView
@@ -44,8 +44,16 @@
         android:background="@drawable/fields"/>
 
 
-
-    <EditText
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:passwordToggleContentDescription="description"
+        app:passwordToggleEnabled="true"
+        app:passwordToggleTint="@color/colorAccent"
+        app:hintEnabled="false"
+        android:layout_marginTop="5dp"
+        >
+    <android.support.design.widget.TextInputEditText
         android:id="@+id/et_password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -60,7 +68,9 @@
         android:padding="10sp"
         android:inputType="textPassword"
         android:textSize="25dp"
-        android:background="@drawable/fields"/>
+        android:background="@drawable/fields"
+        />
+    </android.support.design.widget.TextInputLayout>
 
 
 

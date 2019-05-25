@@ -27,6 +27,7 @@ import android.widget.EditText;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -48,6 +49,8 @@ public class RemindersFragment extends Fragment {
     FirebaseDatabase database;
     DatabaseReference remRef;
     DatabaseReference posRef;
+
+    FirebaseAuth mAuth;
 
     FloatingActionButton addBtn;
     Dialog newReminderDialog;
@@ -77,9 +80,10 @@ public class RemindersFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_reminders, container, false);
 
+        mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
-        posRef = database.getReference("remPosition");
-        remRef = database.getReference("remList");
+        posRef = database.getReference().child(mAuth.getCurrentUser().getUid()).child("remPosition");
+        remRef = database.getReference().child(mAuth.getCurrentUser().getUid()).child("remList");
 
         readPositionFromDatabase();
         alarmManager = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
@@ -215,7 +219,7 @@ public class RemindersFragment extends Fragment {
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void addReminder() {
-        String id = remRef.push().getKey();
+        String id = remRef.child(mAuth.getCurrentUser().getUid()).push().getKey();
         Reminder newReminder = new Reminder(timePicker.getHour(), timePicker.getMinute(), true, mainText.getText().toString(), id);
 
 

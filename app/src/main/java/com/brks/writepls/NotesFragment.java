@@ -19,6 +19,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -43,9 +44,9 @@ public class NotesFragment extends Fragment {
     NotesRecyclerViewAdapter recyclerAdapter;
 
     private FirebaseDatabase database;
-    private DatabaseReference myRef;
     private DatabaseReference positionRef;
-
+    private FirebaseAuth mAuth;
+    private DatabaseReference myRef;
 
     Dialog mDialog;
     String editedText;
@@ -66,10 +67,10 @@ public class NotesFragment extends Fragment {
 
         View v = inflater.inflate(R.layout.fragment_notes, container, false);
 
-
+        mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
-        myRef = database.getReference("notes");
-        positionRef = database.getReference("namePosition");
+        myRef = database.getReference().child(mAuth.getCurrentUser().getUid()).child("notes");
+        positionRef = database.getReference().child(mAuth.getCurrentUser().getUid()).child("namePosition");
 
         readPositionFromDatabase();
 
@@ -208,7 +209,7 @@ public class NotesFragment extends Fragment {
    }
 
     private void addNote(){
-        String id = myRef.push().getKey();
+        String id = myRef.child(mAuth.getCurrentUser().getUid()).push().getKey();
         Note newNote = new Note("Новая заметка " + namePosition,
         getDateInstance().format(System.currentTimeMillis()),"Текст заметки",id,true );
 

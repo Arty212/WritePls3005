@@ -19,6 +19,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -43,6 +44,8 @@ public class ToDoListFragment extends Fragment  {
     private FirebaseDatabase database;
     private DatabaseReference myRef1;
     private DatabaseReference listRef;
+
+    private FirebaseAuth mAuth;
 
     private RecyclerView toDoRecyclerView;
     private List<ToDo> lstToDo = new ArrayList<>();
@@ -72,9 +75,13 @@ public class ToDoListFragment extends Fragment  {
                              @NonNull  Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_todo_list, container, false);
 
+
+        mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
-        myRef1 = database.getReference("todo");
-        listRef = database.getReference("list");
+        myRef1 = database.getReference().child(mAuth.getCurrentUser().getUid()).child("toDoList");
+        listRef = database.getReference().child(mAuth.getCurrentUser().getUid()).child("list");
+
+
 
         toDoRecyclerView = v.findViewById(R.id.todo_recyclerView);
         toDoRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -192,7 +199,7 @@ public class ToDoListFragment extends Fragment  {
                 if( !editName.getText().toString().equals("")) {
                     if (Integer.valueOf(editImportance.getText().toString()) > 0 && Integer.valueOf(editImportance.getText().toString()) <6  ) {
 
-                        String id = myRef1.push().getKey();
+                        String id = myRef1.child(mAuth.getCurrentUser().getUid()).push().getKey();
 
                         ToDo newToDo = new ToDo(editName.getText().toString(),Integer.valueOf(editImportance.getText().toString()) , id);
 
