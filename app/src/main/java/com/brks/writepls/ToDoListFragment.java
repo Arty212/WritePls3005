@@ -39,7 +39,7 @@ import static java.text.DateFormat.getDateInstance;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ToDoListFragment extends Fragment  {
+public class ToDoListFragment extends Fragment {
 
     private FirebaseDatabase database;
     private DatabaseReference myRef1;
@@ -51,6 +51,7 @@ public class ToDoListFragment extends Fragment  {
     private List<ToDo> lstToDo = new ArrayList<>();
     private List<ToDo> lstText = new ArrayList<>();
     Compare compare = new Compare();
+    private ChildEventListener childEventListener;
 
     TextView textList;
     Button clearBtn;
@@ -71,21 +72,15 @@ public class ToDoListFragment extends Fragment  {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater,@NonNull ViewGroup container,
-                             @NonNull  Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container,
+                             @NonNull Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_todo_list, container, false);
 
-
-        mAuth = FirebaseAuth.getInstance();
-        database = FirebaseDatabase.getInstance();
-        myRef1 = database.getReference().child(mAuth.getCurrentUser().getUid()).child("toDoList");
-        listRef = database.getReference().child(mAuth.getCurrentUser().getUid()).child("list");
-
-
+        FirebaseInit();
 
         toDoRecyclerView = v.findViewById(R.id.todo_recyclerView);
         toDoRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        toDoRecyclerViewAdapter = new ToDoRecyclerViewAdapter(getContext(),lstToDo);
+        toDoRecyclerViewAdapter = new ToDoRecyclerViewAdapter(getContext(), lstToDo);
         toDoRecyclerView.setAdapter(toDoRecyclerViewAdapter);
 
 
@@ -108,12 +103,15 @@ public class ToDoListFragment extends Fragment  {
         readListFromDatabase();
 
         lstToDo.clear();
-        updateList();
         return v;
     }
 
-    private void updateList(){
-        myRef1.addChildEventListener(new ChildEventListener() {
+    private void FirebaseInit() {
+        mAuth = FirebaseAuth.getInstance();
+        database = FirebaseDatabase.getInstance();
+        myRef1 = database.getReference().child(mAuth.getCurrentUser().getUid()).child("toDoList");
+        listRef = database.getReference().child(mAuth.getCurrentUser().getUid()).child("list");
+        childEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 lstToDo.add(dataSnapshot.getValue(ToDo.class));
@@ -125,7 +123,7 @@ public class ToDoListFragment extends Fragment  {
 
                 ToDo toDo = dataSnapshot.getValue(ToDo.class);
                 int index = getItemIndex(toDo);
-                lstToDo.set(index,toDo);
+                lstToDo.set(index, toDo);
                 toDoRecyclerViewAdapter.notifyItemChanged(index);
             }
 
@@ -147,13 +145,22 @@ public class ToDoListFragment extends Fragment  {
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
-        });
+        };
+        myRef1.addChildEventListener(childEventListener);
     }
-    private int getItemIndex(ToDo toDo){
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        myRef1.removeEventListener(childEventListener);
+        childEventListener = null;
+    }
+
+    private int getItemIndex(ToDo toDo) {
 
         int index = -1;
-        for(int i = 0; i < lstToDo.size(); i++){
-            if(lstToDo.get(i).getKey().equals(toDo.getKey())) {
+        for (int i = 0; i < lstToDo.size(); i++) {
+            if (lstToDo.get(i).getKey().equals(toDo.getKey())) {
                 index = i;
                 break;
             }
@@ -166,7 +173,7 @@ public class ToDoListFragment extends Fragment  {
     @Override
     public boolean onContextItemSelected(final MenuItem item) {
 
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case 0:
                 addToList(item.getGroupId());
                 sortList(lstText);
@@ -182,7 +189,7 @@ public class ToDoListFragment extends Fragment  {
         return super.onContextItemSelected(item);
     }
 
-    public void addToDo(){
+    public void addToDo() {
         mDialog = new Dialog(getContext());
         mDialog.setContentView(R.layout.dialog_new_todo);
         editImportance = mDialog.findViewById(R.id.editImp);
@@ -196,12 +203,12 @@ public class ToDoListFragment extends Fragment  {
             @Override
             public void onClick(View v) {
 
-                if( !editName.getText().toString().equals("")) {
-                    if (Integer.valueOf(editImportance.getText().toString()) > 0 && Integer.valueOf(editImportance.getText().toString()) <6  ) {
+                if (!editName.getText().toString().equals("")) {
+                    if (Integer.valueOf(editImportance.getText().toString()) > 0 && Integer.valueOf(editImportance.getText().toString()) < 6) {
 
                         String id = myRef1.child(mAuth.getCurrentUser().getUid()).push().getKey();
 
-                        ToDo newToDo = new ToDo(editName.getText().toString(),Integer.valueOf(editImportance.getText().toString()) , id);
+                        ToDo newToDo = new ToDo(editName.getText().toString(), Integer.valueOf(editImportance.getText().toString()), id);
 
                         Map<String, Object> toDoValue = newToDo.toMap();
 
@@ -210,8 +217,9 @@ public class ToDoListFragment extends Fragment  {
 
                         myRef1.updateChildren(toDo);
 
-                    }else Toast.makeText(getContext(), "Важность 1-5", Toast.LENGTH_SHORT).show();
-                }else Toast.makeText(getContext(), "Проверьте название дела", Toast.LENGTH_SHORT).show();
+                    } else Toast.makeText(getContext(), "Важность 1-5", Toast.LENGTH_SHORT).show();
+                } else
+                    Toast.makeText(getContext(), "Проверьте название дела", Toast.LENGTH_SHORT).show();
 
                 mDialog.cancel();
             }
@@ -227,45 +235,45 @@ public class ToDoListFragment extends Fragment  {
 
     }
 
-    private void removeToDo(int position){
+    private void removeToDo(int position) {
         myRef1.child(lstToDo.get(position).getKey()).removeValue();
     }
 
-    private void addToList(int position){
+    private void addToList(int position) {
         lstText.add(lstToDo.get(position));
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    private void sortList(List<ToDo> list){
-        Collections.sort(list,compare);
+    private void sortList(List<ToDo> list) {
+        Collections.sort(list, compare);
     }
 
-    private void updateTextList(List<ToDo> list){
+    private void updateTextList(List<ToDo> list) {
         textList.setText(" ");
         String text;
-        for(int i = 0; i < list.size(); i++){
-            int num = i +1;
+        for (int i = 0; i < list.size(); i++) {
+            int num = i + 1;
             text = list.get(i).getTitle();
             if (textList.getText() == " ")
-                textList.setText(num  + ". " + text + "\n");
+                textList.setText(num + ". " + text + "\n");
             else
-                textList.setText( textList.getText() + "\n" + num + ". " + text + "\n");
+                textList.setText(textList.getText() + "\n" + num + ". " + text + "\n");
         }
         writeListToDatabase();
 
     }
 
-    private void clearTextList(){
+    private void clearTextList() {
         textList.setText(" ");
         lstText.clear();
         writeListToDatabase();
     }
 
-    private void writeListToDatabase(){
+    private void writeListToDatabase() {
         listRef.setValue(textList.getText());
     }
 
-    private void readListFromDatabase(){
+    private void readListFromDatabase() {
         listRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -274,6 +282,7 @@ public class ToDoListFragment extends Fragment  {
                 String value = dataSnapshot.getValue(String.class);
                 textList.setText(value);
             }
+
             @Override
             public void onCancelled(DatabaseError error) {
             }

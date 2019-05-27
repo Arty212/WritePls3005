@@ -47,6 +47,7 @@ public class NotesFragment extends Fragment {
     private DatabaseReference positionRef;
     private FirebaseAuth mAuth;
     private DatabaseReference myRef;
+    private ChildEventListener childEventListener;
 
     Dialog mDialog;
     String editedText;
@@ -67,29 +68,23 @@ public class NotesFragment extends Fragment {
 
         View v = inflater.inflate(R.layout.fragment_notes, container, false);
 
-        mAuth = FirebaseAuth.getInstance();
-        database = FirebaseDatabase.getInstance();
-        myRef = database.getReference().child(mAuth.getCurrentUser().getUid()).child("notes");
-        positionRef = database.getReference().child(mAuth.getCurrentUser().getUid()).child("namePosition");
-
-        readPositionFromDatabase();
-
+        FirebaseInit();
 
         notesRecyclerView = v.findViewById(R.id.notes_recyclerView);
         notesRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        recyclerAdapter = new NotesRecyclerViewAdapter(getContext(),lstNote);
+        recyclerAdapter = new NotesRecyclerViewAdapter(getContext(), lstNote);
         notesRecyclerView.setAdapter(recyclerAdapter);
 
         recyclerAdapter.setOnItemClickListener(new NotesRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onStatusClick(int position) {
-                if(lstNote.get(position).isVisible()){
+                if (lstNote.get(position).isVisible()) {
 
-                    changeNote(position,false);
+                    changeNote(position, false);
                     lstNote.get(position).setVisible(false);
 
-                }else {
-                    changeNote(position,true);
+                } else {
+                    changeNote(position, true);
                     lstNote.get(position).setVisible(true);
 
                 }
@@ -111,13 +106,17 @@ public class NotesFragment extends Fragment {
 
 
         lstNote.clear();
-        updateList();
 
         return v;
     }
 
-    private void updateList(){
-        myRef.addChildEventListener(new ChildEventListener() {
+    private void FirebaseInit() {
+        mAuth = FirebaseAuth.getInstance();
+        database = FirebaseDatabase.getInstance();
+        myRef = database.getReference().child(mAuth.getCurrentUser().getUid()).child("notes");
+        positionRef = database.getReference().child(mAuth.getCurrentUser().getUid()).child("namePosition");
+
+        childEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 lstNote.add(dataSnapshot.getValue(Note.class));
@@ -128,7 +127,7 @@ public class NotesFragment extends Fragment {
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 Note note = dataSnapshot.getValue(Note.class);
                 int index = getItemIndex(note);
-                lstNote.set(index,note);
+                lstNote.set(index, note);
                 recyclerAdapter.notifyItemChanged(index);
             }
 
@@ -139,21 +138,34 @@ public class NotesFragment extends Fragment {
                 lstNote.remove(index);
                 recyclerAdapter.notifyItemRemoved(index);
             }
+
             @Override
             public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
 
             }
+
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
-        });
+        };
+
+        myRef.addChildEventListener(childEventListener);
+
+        readPositionFromDatabase();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        myRef.removeEventListener(childEventListener);
+        childEventListener = null;
     }
 
     @Override
     public boolean onContextItemSelected(final MenuItem item) {
 
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case 0:
                 removeNote(item.getGroupId());
                 break;
@@ -190,11 +202,11 @@ public class NotesFragment extends Fragment {
     }
 
 
-    private int getItemIndex(Note note){
+    private int getItemIndex(Note note) {
 
         int index = -1;
-        for(int i = 0; i < lstNote.size(); i++){
-            if(lstNote.get(i).getKey().equals(note.getKey())) {
+        for (int i = 0; i < lstNote.size(); i++) {
+            if (lstNote.get(i).getKey().equals(note.getKey())) {
                 index = i;
                 break;
             }
@@ -203,62 +215,63 @@ public class NotesFragment extends Fragment {
         return index;
     }
 
-    private void removeNote(int position){
+    private void removeNote(int position) {
         myRef.child(lstNote.get(position).getKey()).removeValue();
 
-   }
+    }
 
-    private void addNote(){
+    private void addNote() {
         String id = myRef.child(mAuth.getCurrentUser().getUid()).push().getKey();
         Note newNote = new Note("Новая заметка " + namePosition,
-        getDateInstance().format(System.currentTimeMillis()),"Текст заметки",id,true );
+                getDateInstance().format(System.currentTimeMillis()), "Текст заметки", id, true);
 
 
-        Map<String,Object> noteValue = newNote.toMap();
+        Map<String, Object> noteValue = newNote.toMap();
 
-        Map<String,Object> note = new HashMap<>();
-        note.put(id,noteValue);
+        Map<String, Object> note = new HashMap<>();
+        note.put(id, noteValue);
 
         myRef.updateChildren(note);
         namePosition++;
         writePositionToDatabase();
     }
 
-    private void changeNote(int position){
+    private void changeNote(int position) {
         Note note = lstNote.get(position);
 
         note.setText(editedText);
         note.setName(editedName);
 
-        Map<String,Object> noteValue = note.toMap();
+        Map<String, Object> noteValue = note.toMap();
 
-        Map<String,Object> newNote = new HashMap<>();
+        Map<String, Object> newNote = new HashMap<>();
 
-        newNote.put(note.getKey(),noteValue);
+        newNote.put(note.getKey(), noteValue);
 
         myRef.updateChildren(newNote);
 
     }
-    private void changeNote(int position,boolean visible){
+
+    private void changeNote(int position, boolean visible) {
         Note note = lstNote.get(position);
 
         note.setVisible(visible);
 
-        Map<String,Object> noteValue = note.toMap();
+        Map<String, Object> noteValue = note.toMap();
 
-        Map<String,Object> newNote = new HashMap<>();
+        Map<String, Object> newNote = new HashMap<>();
 
-        newNote.put(note.getKey(),noteValue);
+        newNote.put(note.getKey(), noteValue);
 
         myRef.updateChildren(newNote);
 
     }
 
-    private void writePositionToDatabase(){
+    private void writePositionToDatabase() {
         positionRef.setValue(namePosition);
     }
 
-    private void readPositionFromDatabase(){
+    private void readPositionFromDatabase() {
         // Read from the database
         positionRef.addValueEventListener(new ValueEventListener() {
             @Override

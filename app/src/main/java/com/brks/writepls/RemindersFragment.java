@@ -67,28 +67,25 @@ public class RemindersFragment extends Fragment {
 
     private AlarmManager alarmManager;
 
+    private ChildEventListener childEventListener;
+
     public int namePosition;
 
     PendingIntent pendingIntent;
 
     Calendar calendar;
-    //a
-//
+
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_reminders, container, false);
 
-        mAuth = FirebaseAuth.getInstance();
-        database = FirebaseDatabase.getInstance();
-        posRef = database.getReference().child(mAuth.getCurrentUser().getUid()).child("remPosition");
-        remRef = database.getReference().child(mAuth.getCurrentUser().getUid()).child("remList");
+        FirebaseInit();
 
-        readPositionFromDatabase();
         alarmManager = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
 
-         calendar= Calendar.getInstance();
+        calendar= Calendar.getInstance();
 
 
         recyclerAdapter = new ReminderRecyclerViewAdapter(getContext(), lstReminder);
@@ -102,9 +99,6 @@ public class RemindersFragment extends Fragment {
         timePicker = newReminderDialog.findViewById(R.id.timePicker);
         cancelBtn = newReminderDialog.findViewById(R.id.cancelBtn);
         doneBtn = newReminderDialog.findViewById(R.id.doneBtn);
-
-
-
 
         recyclerAdapter.setOnItemClickListener(new ReminderRecyclerViewAdapter.OnItemClickListener() {
             @Override
@@ -150,12 +144,17 @@ public class RemindersFragment extends Fragment {
         });
 
         lstReminder.clear();
-        updateList();
+
         return v;
     }
 
-    private void updateList() {
-        remRef.addChildEventListener(new ChildEventListener() {
+    private void FirebaseInit(){
+        mAuth = FirebaseAuth.getInstance();
+        database = FirebaseDatabase.getInstance();
+        posRef = database.getReference().child(mAuth.getCurrentUser().getUid()).child("remPosition");
+        remRef = database.getReference().child(mAuth.getCurrentUser().getUid()).child("remList");
+
+        childEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 lstReminder.add(dataSnapshot.getValue(Reminder.class));
@@ -189,7 +188,18 @@ public class RemindersFragment extends Fragment {
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
-        });
+        };
+
+        remRef.addChildEventListener(childEventListener);
+
+        readPositionFromDatabase();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        remRef.removeEventListener(childEventListener);
+        childEventListener = null;
     }
 
     @Override
