@@ -1,7 +1,6 @@
-package com.brks.writepls;
+package com.brks.writepls.Activities.Authentication;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,6 +10,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.brks.writepls.Activities.MainActivity;
+import com.brks.writepls.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
@@ -28,12 +29,8 @@ public class AutActivity extends AppCompatActivity implements View.OnClickListen
     private EditText ETpassword;
     private Button autBtn;
     private Button regBtn;
-    final String TAG = " hello";
-    DatabaseReference ref;
-    private FirebaseDatabase database;
-    private DatabaseReference positionRef;
-    private DatabaseReference listRef;
-    private DatabaseReference remRef;
+    private final String TAG = " hello";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,16 +48,6 @@ public class AutActivity extends AppCompatActivity implements View.OnClickListen
         mAuth = FirebaseAuth.getInstance();
 
 
-
-
-
-
-
-
-
-
-
-
     }
     @Override
     public void onStart() {
@@ -73,14 +60,9 @@ public class AutActivity extends AppCompatActivity implements View.OnClickListen
     private void updateUI(FirebaseUser user) {
         if (user != null) {
 
-
-
-                Intent intent = new Intent(getApplicationContext(),MainActivity.class);
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 startActivity(intent);
 
-               // ref = FirebaseDatabase.getInstance().getReference("users");
-
-             //   ref.child(user.getUid()).setValue(new User());
         } else {
 
         }
@@ -88,17 +70,21 @@ public class AutActivity extends AppCompatActivity implements View.OnClickListen
 
     @Override
     public void onClick(View v) {
-        if(!ETemail.getText().toString().equals("") && !ETpassword.getText().toString().equals("")) {
+
             switch (v.getId()) {
                 case R.id.btn_sign_in:
+                    if(!ETemail.getText().toString().equals("") && !ETpassword.getText().toString().equals("")) {
                     signIn(ETemail.getText().toString(), ETpassword.getText().toString());
+                    }
+                    else Toast.makeText(getApplicationContext(),"Проверьте данные",Toast.LENGTH_SHORT).show();
                     break;
                 case R.id.btn_registration:
-                    registration(ETemail.getText().toString(), ETpassword.getText().toString());
+                    Intent intent = new Intent(getApplicationContext(), RegisterActivity.class);
+                    startActivity(intent);
                     break;
             }
-        } else Toast.makeText(getApplicationContext(),"Проверьте данные",Toast.LENGTH_SHORT).show();
-    }
+        }
+
 
     public void signIn(String email, String password){
         mAuth.signInWithEmailAndPassword(email, password)
@@ -121,36 +107,9 @@ public class AutActivity extends AppCompatActivity implements View.OnClickListen
                     }
                 });
     }
-    public void registration(String email, String password){
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "createUserWithEmail:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
 
-                            database = FirebaseDatabase.getInstance();
-                            positionRef = database.getReference().child(mAuth.getCurrentUser().getUid()).child("namePosition");
-                            remRef = database.getReference().child(mAuth.getCurrentUser().getUid()).child("remPosition");
-                            listRef = database.getReference().child(mAuth.getCurrentUser().getUid()).child("list");
-                            positionRef.setValue(1);
-                            listRef.setValue(" ");
-                            remRef.setValue(1);
-
-                            updateUI(user);
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(AutActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-                            updateUI(null);
-                        }
-
-                        // ...
-                    }
-                });
-    }
 
 }
+
+
+

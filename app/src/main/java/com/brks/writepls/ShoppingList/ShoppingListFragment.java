@@ -1,9 +1,8 @@
-package com.brks.writepls;
+package com.brks.writepls.ShoppingList;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,6 +13,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.brks.writepls.Compare.CompareShoppingElement;
+import com.brks.writepls.R;
+import com.brks.writepls.ShoppingList.ShoppingElement;
+import com.brks.writepls.ShoppingList.ShoppingRecyclerViewAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -37,6 +40,8 @@ public class ShoppingListFragment extends Fragment {
     private ShoppingRecyclerViewAdapter shoppingRecyclerViewAdapter;
     private static List<ShoppingElement> lstToBuy = new ArrayList<>();
 
+    private ChildEventListener childEventListener;
+
     Button addBtn;
     EditText editText;
     Button clearList;
@@ -50,6 +55,8 @@ public class ShoppingListFragment extends Fragment {
                              Bundle savedInstanceState) {
 // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_shopping_list, container, false);
+
+
 
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
@@ -65,6 +72,7 @@ public class ShoppingListFragment extends Fragment {
         shoppingRecyclerViewAdapter = new ShoppingRecyclerViewAdapter(getContext(), lstToBuy);
         shoppingRecyclerView.setAdapter(shoppingRecyclerViewAdapter);
 
+        FirebaseInit();
         sortList();
 
         shoppingRecyclerViewAdapter.setOnItemClickListener(new ShoppingRecyclerViewAdapter.OnItemClickListener() {
@@ -91,8 +99,8 @@ public class ShoppingListFragment extends Fragment {
         addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               lstToBuy.clear();
-                addShoppingElement();
+              // lstToBuy.clear();
+               addShoppingElement();
             }
         });
         clearList.setOnClickListener(new View.OnClickListener() {
@@ -103,36 +111,39 @@ public class ShoppingListFragment extends Fragment {
         });
 
         lstToBuy.clear();
-        updateList();
         sortList();
 
         return v;
     }
 
-    private void updateList() {
-        myRef.addChildEventListener(new ChildEventListener() {
+    private void FirebaseInit() {
+        mAuth = FirebaseAuth.getInstance();
+        database = FirebaseDatabase.getInstance();
+        myRef = database.getReference().child(mAuth.getCurrentUser().getUid()).child("shoppingList");
+        childEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 lstToBuy.add(dataSnapshot.getValue(ShoppingElement.class));
                 shoppingRecyclerViewAdapter.notifyDataSetChanged();
+                sortList();
             }
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
                 ShoppingElement shoppingElement = dataSnapshot.getValue(ShoppingElement.class);
                 int index = getItemIndex(shoppingElement);
                 lstToBuy.set(index, shoppingElement);
                 shoppingRecyclerViewAdapter.notifyItemChanged(index);
+                sortList();
             }
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
                 ShoppingElement shoppingElement = dataSnapshot.getValue(ShoppingElement.class);
                 int index = getItemIndex(shoppingElement);
                 lstToBuy.remove(index);
                 shoppingRecyclerViewAdapter.notifyItemRemoved(index);
+                sortList();
             }
 
             @Override
@@ -144,8 +155,15 @@ public class ShoppingListFragment extends Fragment {
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
-        });
+        };
+        myRef.addChildEventListener(childEventListener);
+    }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        myRef.removeEventListener(childEventListener);
+        childEventListener = null;
     }
     private int getItemIndex(ShoppingElement shoppingElement){
 
@@ -177,7 +195,6 @@ public class ShoppingListFragment extends Fragment {
     private void addShoppingElement(){
         if(!editText.getText().toString().equals("")) {
 
-
             String id = myRef.child(mAuth.getCurrentUser().getUid()).push().getKey();
 
             ShoppingElement newShoppingElement = new ShoppingElement(true, editText.getText().toString(), id);
@@ -190,11 +207,6 @@ public class ShoppingListFragment extends Fragment {
             myRef.updateChildren(shoppingElement);
 
             editText.setText(null);
-
-            updateList();
-           shoppingRecyclerViewAdapter.notifyDataSetChanged();
-          //  sortList();
-          //  lstToBuy.clear();
 
 
         }
@@ -211,7 +223,7 @@ public class ShoppingListFragment extends Fragment {
     }
 
     public static void sortList(){
-        Collections.sort(lstToBuy,new CompareSh());
+        Collections.sort(lstToBuy,new CompareShoppingElement());
     }
     private void changeShoppElement(int position,boolean status){
         ShoppingElement shoppingElement = lstToBuy.get(position);

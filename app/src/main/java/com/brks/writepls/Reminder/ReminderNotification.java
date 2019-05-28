@@ -1,4 +1,4 @@
-package com.brks.writepls;
+package com.brks.writepls.Reminder;
 
 import android.annotation.TargetApi;
 import android.app.Notification;
@@ -12,6 +12,8 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
+
+import com.brks.writepls.R;
 
 
 public class ReminderNotification {
@@ -37,16 +39,6 @@ public class ReminderNotification {
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setTicker(ticker)
                 .setNumber(number)
-                .setContentIntent(
-                        PendingIntent.getActivity(
-                                context,
-                                0,
-                                new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.google.com")),
-                                PendingIntent.FLAG_UPDATE_CURRENT))
-                .setStyle(new NotificationCompat.BigTextStyle()
-                        .bigText(text)
-                        .setSummaryText("Dummy summary text"))
-                // Automatically dismiss the notification when it is touched.
                 .setAutoCancel(true);
 
         notify(context, builder.build());

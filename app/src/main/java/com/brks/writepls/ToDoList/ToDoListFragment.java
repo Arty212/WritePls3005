@@ -1,4 +1,4 @@
-package com.brks.writepls;
+package com.brks.writepls.ToDoList;
 
 
 import android.app.Dialog;
@@ -19,6 +19,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.brks.writepls.Compare.CompareToDo;
+import com.brks.writepls.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -36,9 +38,6 @@ import java.util.Map;
 import static java.text.DateFormat.getDateInstance;
 
 
-/**
- * A simple {@link Fragment} subclass.
- */
 public class ToDoListFragment extends Fragment  {
 
     private FirebaseDatabase database;
@@ -50,7 +49,8 @@ public class ToDoListFragment extends Fragment  {
     private RecyclerView toDoRecyclerView;
     private List<ToDo> lstToDo = new ArrayList<>();
     private List<ToDo> lstText = new ArrayList<>();
-    Compare compare = new Compare();
+    CompareToDo compareToDo = new CompareToDo();
+    private ChildEventListener childEventListener;
 
     TextView textList;
     Button clearBtn;
@@ -81,7 +81,7 @@ public class ToDoListFragment extends Fragment  {
         myRef1 = database.getReference().child(mAuth.getCurrentUser().getUid()).child("toDoList");
         listRef = database.getReference().child(mAuth.getCurrentUser().getUid()).child("list");
 
-
+        FirebaseInit();
 
         toDoRecyclerView = v.findViewById(R.id.todo_recyclerView);
         toDoRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -108,12 +108,15 @@ public class ToDoListFragment extends Fragment  {
         readListFromDatabase();
 
         lstToDo.clear();
-        updateList();
         return v;
     }
 
-    private void updateList(){
-        myRef1.addChildEventListener(new ChildEventListener() {
+    private void FirebaseInit() {
+        mAuth = FirebaseAuth.getInstance();
+        database = FirebaseDatabase.getInstance();
+        myRef1 = database.getReference().child(mAuth.getCurrentUser().getUid()).child("toDoList");
+        listRef = database.getReference().child(mAuth.getCurrentUser().getUid()).child("list");
+        childEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 lstToDo.add(dataSnapshot.getValue(ToDo.class));
@@ -125,7 +128,7 @@ public class ToDoListFragment extends Fragment  {
 
                 ToDo toDo = dataSnapshot.getValue(ToDo.class);
                 int index = getItemIndex(toDo);
-                lstToDo.set(index,toDo);
+                lstToDo.set(index, toDo);
                 toDoRecyclerViewAdapter.notifyItemChanged(index);
             }
 
@@ -147,7 +150,15 @@ public class ToDoListFragment extends Fragment  {
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
-        });
+        };
+        myRef1.addChildEventListener(childEventListener);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        myRef1.removeEventListener(childEventListener);
+        childEventListener = null;
     }
     private int getItemIndex(ToDo toDo){
 
@@ -237,7 +248,7 @@ public class ToDoListFragment extends Fragment  {
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     private void sortList(List<ToDo> list){
-        Collections.sort(list,compare);
+        Collections.sort(list, compareToDo);
     }
 
     private void updateTextList(List<ToDo> list){

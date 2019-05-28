@@ -1,8 +1,10 @@
-package com.brks.writepls;
+package com.brks.writepls.Compare;
+
+import com.brks.writepls.ToDoList.ToDo;
 
 import java.util.Comparator;
 
-public class Compare implements Comparator<ToDo> {
+public class CompareToDo implements Comparator<ToDo> {
 
     @Override
     public int compare(ToDo o1, ToDo o2) {

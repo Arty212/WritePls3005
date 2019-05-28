@@ -12,9 +12,12 @@
         android:screenOrientation="portrait"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity"></activity>
+        <activity android:name=".Activities.Authentication.RegisterActivity"
+            android:theme="@style/AppThemeBar"
+            android:noHistory="true"/>
+        <activity android:name=".Activities.MainActivity" />
         <activity
-            android:name=".AutActivity"
+            android:name=".Activities.Authentication.AutActivity"
             android:label="WritePls"
             android:noHistory="true">
             <intent-filter>
@@ -23,9 +26,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".NoteActivity" />
+        <activity
+            android:name=".Activities.NoteActivity"
+            android:theme="@style/AppThemeBar" />
 
-        <receiver android:name=".AlarmReceiver" />
+        <receiver android:name=".Receiver.AlarmReceiver" />
     </application>
 
 </manifest>

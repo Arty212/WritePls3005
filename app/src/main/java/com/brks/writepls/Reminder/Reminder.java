@@ -1,4 +1,4 @@
-package com.brks.writepls;
+package com.brks.writepls.Reminder;
 
 import java.util.HashMap;
 import java.util.Map;

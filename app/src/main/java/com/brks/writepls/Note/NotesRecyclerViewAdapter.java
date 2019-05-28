@@ -1,8 +1,6 @@
-package com.brks.writepls;
+package com.brks.writepls.Note;
 
-import android.app.Dialog;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
@@ -12,11 +10,10 @@ import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.brks.writepls.R;
 
 import java.util.List;
 
@@ -30,6 +27,7 @@ public class NotesRecyclerViewAdapter extends RecyclerView.Adapter<NotesRecycler
 
     public interface OnItemClickListener{
         void onStatusClick(int position);
+        void onItemClick(int position);
 
     }
 
@@ -114,6 +112,12 @@ public class NotesRecyclerViewAdapter extends RecyclerView.Adapter<NotesRecycler
                 @Override
                 public void onClick(View v) {
                     listener.onStatusClick(getAdapterPosition());
+                }
+            });
+            item_note.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    listener.onItemClick(getAdapterPosition());
                 }
             });
 

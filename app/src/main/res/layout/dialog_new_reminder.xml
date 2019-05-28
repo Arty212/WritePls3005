@@ -1,40 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="320dp"
     android:layout_height="wrap_content"
     android:layout_gravity="center">
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@color/colorPrimaryDark"
         android:orientation="vertical"
         android:gravity="center_horizontal"
         >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/colorPrimary">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Creating new reminder"
+            android:text="Новое напоминание"
             android:textSize="24sp"
             android:textColor="@android:color/white"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            android:layout_gravity="center"/>
+        </LinearLayout>
 
         <TimePicker
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:amPmTextColor="@android:color/white"
             android:numbersInnerTextColor="@android:color/white"
-            android:id="@+id/timePicker">
+            android:id="@+id/timePicker"
+            android:headerBackground="@color/colorPrimary"
+            android:numbersSelectorColor="@color/colorPrimary">
         </TimePicker>
 
-        <EditText
+        <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Введите текст"
-            android:id="@+id/text_new_reminder"
-            android:textStyle="bold"
-            android:background="@android:color/white"
-            />
+
+            >
+
+            <EditText
+                android:id="@+id/text_new_reminder"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:hint="Текст напоминания" />
+        </android.support.design.widget.TextInputLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -45,21 +57,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                style="@style/Widget.AppCompat.Button.Borderless.Colored"
-                android:text="Cancel"
-                android:textColor="@android:color/white"
-                android:textStyle="bold"
-                android:textSize="22sp"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:text="отмена"
+                android:textSize="20sp"
                 android:id="@+id/cancelBtn"/>
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                style="@style/Widget.AppCompat.Button.Borderless.Colored"
-                android:text="Done"
-                android:textColor="@android:color/white"
-                android:textStyle="bold"
-                android:textSize="22sp"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:text="готово"
+                android:textSize="20sp"
                 android:id="@+id/doneBtn"/>
 
         </LinearLayout>
@@ -68,4 +76,4 @@
 
     </LinearLayout>
 
-</RelativeLayout>
+</LinearLayout>

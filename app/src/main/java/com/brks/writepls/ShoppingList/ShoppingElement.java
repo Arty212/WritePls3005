@@ -1,4 +1,4 @@
-package com.brks.writepls;
+package com.brks.writepls.ShoppingList;
 
 import java.util.HashMap;
 import java.util.Map;

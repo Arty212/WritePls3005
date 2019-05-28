@@ -1,19 +1,17 @@
-package com.brks.writepls;
+package com.brks.writepls.Reminder;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.brks.writepls.R;
 
 import java.util.List;
 
@@ -59,8 +57,22 @@ public class ReminderRecyclerViewAdapter extends RecyclerView.Adapter<ReminderRe
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         if( mData.get(position).getMinute() > 10) {
-            holder.time.setText(mData.get(position).getHour() + ":" + mData.get(position).getMinute());
-        }else holder.time.setText(mData.get(position).getHour() + ":0" + mData.get(position).getMinute());
+            if(mData.get(position).getHour() > 10){
+                holder.time.setText(mData.get(position).getHour() + ":" + mData.get(position).getMinute());
+            }
+            else{
+                holder.time.setText("0"+ mData.get(position).getHour() + ":" + mData.get(position).getMinute());
+            }
+        }else{
+            if(mData.get(position).getHour() > 10){
+                holder.time.setText(mData.get(position).getHour() + ":0" + mData.get(position).getMinute());
+            }
+            else{
+                holder.time.setText("0"+ mData.get(position).getHour() + ":0" + mData.get(position).getMinute());
+            }
+        }
+
+
         holder.aSwitch.setChecked(mData.get(position).isFlag());
         holder.text.setText(mData.get(position).getText());
     }

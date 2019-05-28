@@ -34,11 +34,11 @@
         android:orientation="vertical">
 
         <TextView
+            android:id="@+id/text_reminder"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="15sp"
-            android:id="@+id/text_reminder"
-            android:text="bla bla"/>
+            android:text="bla bla"
+            android:textSize="15sp" />
     </LinearLayout>
 
 
