@@ -3,17 +3,23 @@ package com.brks.writepls.ShoppingList;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 
 import com.brks.writepls.Compare.CompareShoppingElement;
+import com.brks.writepls.Helper.RecyclerItemTouchHelper;
+import com.brks.writepls.Helper.RecyclerItemTouchHelperListener;
 import com.brks.writepls.R;
 import com.brks.writepls.ShoppingList.ShoppingElement;
 import com.brks.writepls.ShoppingList.ShoppingRecyclerViewAdapter;
@@ -30,7 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ShoppingListFragment extends Fragment {
+public class ShoppingListFragment extends Fragment implements RecyclerItemTouchHelperListener {
 
     private FirebaseDatabase database;
     private DatabaseReference myRef;
@@ -46,6 +52,8 @@ public class ShoppingListFragment extends Fragment {
     EditText editText;
     Button clearList;
 
+    private FrameLayout frameLayout;
+
     public ShoppingListFragment() {
 // Required empty public constructor
     }
@@ -56,12 +64,7 @@ public class ShoppingListFragment extends Fragment {
 // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_shopping_list, container, false);
 
-
-
-        mAuth = FirebaseAuth.getInstance();
-        database = FirebaseDatabase.getInstance();
-        myRef = database.getReference().child(mAuth.getCurrentUser().getUid()).child("shoppingList");
-
+        FirebaseInit();
 
         addBtn = v.findViewById(R.id.addElement);
         editText = v.findViewById(R.id.editToBuyElement);
@@ -71,8 +74,9 @@ public class ShoppingListFragment extends Fragment {
         shoppingRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         shoppingRecyclerViewAdapter = new ShoppingRecyclerViewAdapter(getContext(), lstToBuy);
         shoppingRecyclerView.setAdapter(shoppingRecyclerViewAdapter);
+        shoppingRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        FirebaseInit();
+
         sortList();
 
         shoppingRecyclerViewAdapter.setOnItemClickListener(new ShoppingRecyclerViewAdapter.OnItemClickListener() {
@@ -96,6 +100,12 @@ public class ShoppingListFragment extends Fragment {
             }
         });
 
+        frameLayout = v.findViewById(R.id.frameSh);
+
+        ItemTouchHelper.SimpleCallback simpleCallback = new RecyclerItemTouchHelper(0, ItemTouchHelper.LEFT, this);
+        new ItemTouchHelper(simpleCallback).attachToRecyclerView(shoppingRecyclerView);
+
+
         addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -117,6 +127,7 @@ public class ShoppingListFragment extends Fragment {
     }
 
     private void FirebaseInit() {
+        lstToBuy.clear();
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
         myRef = database.getReference().child(mAuth.getCurrentUser().getUid()).child("shoppingList");
@@ -160,11 +171,13 @@ public class ShoppingListFragment extends Fragment {
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onDestroyView() {
+        super.onDestroyView();
+
         myRef.removeEventListener(childEventListener);
         childEventListener = null;
     }
+
     private int getItemIndex(ShoppingElement shoppingElement){
 
         int index
@@ -238,5 +251,23 @@ public class ShoppingListFragment extends Fragment {
 
         myRef.updateChildren(newShoppingElement);
 
+    }
+
+    @Override
+    public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction, int position) {
+        if (viewHolder instanceof ShoppingRecyclerViewAdapter.MyViewHolder) {
+
+
+            String title = lstToBuy.get(viewHolder.getAdapterPosition()).getToBuy();
+
+
+
+            int i = viewHolder.getAdapterPosition();
+
+            removeShoppingElement(i);
+
+            Snackbar snackbar = Snackbar.make(frameLayout, title + " удален", Snackbar.LENGTH_SHORT);
+            snackbar.show();
+        }
     }
 }

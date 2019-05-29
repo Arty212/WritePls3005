@@ -80,15 +80,8 @@ public class NotesFragment extends Fragment implements RecyclerItemTouchHelperLi
 
         View v = inflater.inflate(R.layout.fragment_notes, container, false);
 
-
-        mAuth = FirebaseAuth.getInstance();
-        database = FirebaseDatabase.getInstance();
-        myRef = database.getReference().child(mAuth.getCurrentUser().getUid()).child("notes");
-        positionRef = database.getReference().child(mAuth.getCurrentUser().getUid()).child("namePosition");
-
-
         FirebaseInit();
-        // readPositionFromDatabase();
+
         frameLayout = v.findViewById(R.id.frame);
 
 
@@ -148,6 +141,7 @@ public class NotesFragment extends Fragment implements RecyclerItemTouchHelperLi
 
 
     private void FirebaseInit() {
+        lstNote.clear();
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
         myRef = database.getReference().child(mAuth.getCurrentUser().getUid()).child("notes");
@@ -193,11 +187,10 @@ public class NotesFragment extends Fragment implements RecyclerItemTouchHelperLi
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
-        if(flag){
+    public void onDestroyView() {
+        super.onDestroyView();
         myRef.removeEventListener(childEventListener);
-        childEventListener = null;}
+        childEventListener = null;
     }
 
     @Override

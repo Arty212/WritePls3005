@@ -7,7 +7,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
 
-import com.brks.writepls.Note.NotesRecyclerViewAdapter;
 
 public class RecyclerItemTouchHelper extends ItemTouchHelper.SimpleCallback {
 
@@ -38,7 +37,7 @@ public class RecyclerItemTouchHelper extends ItemTouchHelper.SimpleCallback {
     public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
         super.clearView(recyclerView, viewHolder);
 
-        View v = ((NotesRecyclerViewAdapter.MyViewHolder)viewHolder).itemView;
+        View v = (viewHolder).itemView;
         getDefaultUIUtil().clearView(v);
     }
 
@@ -46,7 +45,7 @@ public class RecyclerItemTouchHelper extends ItemTouchHelper.SimpleCallback {
     public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
         super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
 
-        View v = ((NotesRecyclerViewAdapter.MyViewHolder)viewHolder).itemView;
+        View v = (viewHolder).itemView;
         getDefaultUIUtil().onDraw(c,recyclerView,v,dX,dY,actionState,isCurrentlyActive);
     }
 
@@ -54,7 +53,7 @@ public class RecyclerItemTouchHelper extends ItemTouchHelper.SimpleCallback {
     public void onChildDrawOver(@NonNull Canvas c, @NonNull RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
         super.onChildDrawOver(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
 
-        View v = ((NotesRecyclerViewAdapter.MyViewHolder)viewHolder).itemView;
+        View v = (viewHolder).itemView;
         getDefaultUIUtil().onDrawOver(c,recyclerView,v,dX,dY,actionState,isCurrentlyActive);
     }
 
@@ -62,7 +61,7 @@ public class RecyclerItemTouchHelper extends ItemTouchHelper.SimpleCallback {
     public void onSelectedChanged(@Nullable RecyclerView.ViewHolder viewHolder, int actionState) {
 
         if(viewHolder != null){
-            View v = ((NotesRecyclerViewAdapter.MyViewHolder)viewHolder).itemView;
+            View v = (viewHolder).itemView;
             getDefaultUIUtil().onSelected(v);
         }
 

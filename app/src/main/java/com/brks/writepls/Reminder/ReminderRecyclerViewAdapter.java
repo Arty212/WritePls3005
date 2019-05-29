@@ -56,15 +56,15 @@ public class ReminderRecyclerViewAdapter extends RecyclerView.Adapter<ReminderRe
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        if( mData.get(position).getMinute() > 10) {
-            if(mData.get(position).getHour() > 10){
+        if( mData.get(position).getMinute() >= 10) {
+            if(mData.get(position).getHour() >= 10){
                 holder.time.setText(mData.get(position).getHour() + ":" + mData.get(position).getMinute());
             }
             else{
                 holder.time.setText("0"+ mData.get(position).getHour() + ":" + mData.get(position).getMinute());
             }
         }else{
-            if(mData.get(position).getHour() > 10){
+            if(mData.get(position).getHour() >= 10){
                 holder.time.setText(mData.get(position).getHour() + ":0" + mData.get(position).getMinute());
             }
             else{

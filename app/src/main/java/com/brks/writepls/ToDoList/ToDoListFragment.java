@@ -52,18 +52,18 @@ public class ToDoListFragment extends Fragment  {
     CompareToDo compareToDo = new CompareToDo();
     private ChildEventListener childEventListener;
 
-    TextView textList;
-    Button clearBtn;
+    private  TextView textList;
+    private  Button clearBtn;
 
-    ToDoRecyclerViewAdapter toDoRecyclerViewAdapter;
-    Button addBtn;
+    private  ToDoRecyclerViewAdapter toDoRecyclerViewAdapter;
+    private  Button addBtn;
 
-    Dialog mDialog;
+    private  Dialog mDialog;
 
-    EditText editImportance;
-    EditText editName;
-    Button ok;
-    Button cancel;
+    private  EditText editImportance;
+    private  EditText editName;
+    private  Button ok;
+    private  Button cancel;
 
     public ToDoListFragment() {
         // Required empty public constructor
@@ -74,12 +74,6 @@ public class ToDoListFragment extends Fragment  {
     public View onCreateView(@NonNull LayoutInflater inflater,@NonNull ViewGroup container,
                              @NonNull  Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_todo_list, container, false);
-
-
-        mAuth = FirebaseAuth.getInstance();
-        database = FirebaseDatabase.getInstance();
-        myRef1 = database.getReference().child(mAuth.getCurrentUser().getUid()).child("toDoList");
-        listRef = database.getReference().child(mAuth.getCurrentUser().getUid()).child("list");
 
         FirebaseInit();
 
@@ -155,11 +149,13 @@ public class ToDoListFragment extends Fragment  {
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onDestroyView() {
+        super.onDestroyView();
+        listRef.removeEventListener(childEventListener);
         myRef1.removeEventListener(childEventListener);
         childEventListener = null;
     }
+
     private int getItemIndex(ToDo toDo){
 
         int index = -1;

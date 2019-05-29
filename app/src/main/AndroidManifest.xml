@@ -6,20 +6,23 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_launch1"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/ic_launch1"
         android:screenOrientation="portrait"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".Activities.Authentication.RegisterActivity"
             android:theme="@style/AppThemeBar"
-            android:noHistory="true"/>
-        <activity android:name=".Activities.MainActivity" />
+            android:noHistory="true"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".Activities.MainActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".Activities.Authentication.AutActivity"
             android:label="WritePls"
-            android:noHistory="true">
+            android:noHistory="true"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -28,7 +31,8 @@
         </activity>
         <activity
             android:name=".Activities.NoteActivity"
-            android:theme="@style/AppThemeBar" />
+            android:theme="@style/AppThemeBar"
+            android:screenOrientation="portrait"/>
 
         <receiver android:name=".Receiver.AlarmReceiver" />
     </application>

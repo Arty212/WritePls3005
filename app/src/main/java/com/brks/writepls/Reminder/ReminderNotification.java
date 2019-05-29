@@ -22,9 +22,9 @@ public class ReminderNotification {
 
     public static void notify(final Context context,
                               final String exampleString, final int number) {
-        final Resources res = context.getResources();
 
-        //final Bitmap picture = BitmapFactory.decodeResource(res, R.drawable.example_picture);
+
+        final Bitmap picture = BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launch1);
 
 
         final String ticker = exampleString;
@@ -34,6 +34,7 @@ public class ReminderNotification {
         final NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
                 .setDefaults(Notification.DEFAULT_ALL)
                 .setSmallIcon(R.drawable.ic_reminders)
+                .setLargeIcon(picture)
                 .setContentTitle("Новое напоминание")
                 .setContentText(text)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)

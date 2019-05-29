@@ -12,18 +12,24 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.TimePicker;
 
+import com.brks.writepls.Helper.RecyclerItemTouchHelper;
+import com.brks.writepls.Helper.RecyclerItemTouchHelperListener;
 import com.brks.writepls.Receiver.AlarmReceiver;
 import com.brks.writepls.R;
 import com.google.firebase.auth.FirebaseAuth;
@@ -42,35 +48,37 @@ import java.util.Map;
 
 import static java.text.DateFormat.getDateInstance;
 
-public class RemindersFragment extends Fragment {
+public class RemindersFragment extends Fragment implements RecyclerItemTouchHelperListener {
 
-    FirebaseDatabase database;
-    DatabaseReference remRef;
-    DatabaseReference posRef;
+    private FirebaseDatabase database;
+    private DatabaseReference remRef;
+    private DatabaseReference posRef;
 
-    FirebaseAuth mAuth;
+    private FirebaseAuth mAuth;
 
-    FloatingActionButton addBtn;
-    Dialog newReminderDialog;
-    Button cancelBtn;
-    Button doneBtn;
-    EditText mainText;
-    TimePicker timePicker;
+    private FloatingActionButton addBtn;
+    private Dialog newReminderDialog;
+    private Button cancelBtn;
+    private Button doneBtn;
+    private EditText mainText;
+    private TimePicker timePicker;
 
 
 
     private RecyclerView reminderRecyclerView;
     private List<Reminder> lstReminder = new ArrayList<>();
-    ReminderRecyclerViewAdapter recyclerAdapter;
+    private ReminderRecyclerViewAdapter recyclerAdapter;
 
     private AlarmManager alarmManager;
 
     private ChildEventListener childEventListener;
     public int namePosition;
 
-    PendingIntent pendingIntent;
+    private PendingIntent pendingIntent;
 
-    Calendar calendar;
+    private Calendar calendar;
+
+    private FrameLayout frameLayout;
     //a
 //
 
@@ -79,25 +87,17 @@ public class RemindersFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_reminders, container, false);
 
-
-
-        mAuth = FirebaseAuth.getInstance();
-        database = FirebaseDatabase.getInstance();
-        posRef = database.getReference().child(mAuth.getCurrentUser().getUid()).child("remPosition");
-        remRef = database.getReference().child(mAuth.getCurrentUser().getUid()).child("remList");
-
         FirebaseInit();
 
-        readPositionFromDatabase();
         alarmManager = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
 
-         calendar= Calendar.getInstance();
-
+        calendar= Calendar.getInstance();
 
         recyclerAdapter = new ReminderRecyclerViewAdapter(getContext(), lstReminder);
         reminderRecyclerView = v.findViewById(R.id.reminders_recyclerView);
         reminderRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         reminderRecyclerView.setAdapter(recyclerAdapter);
+        reminderRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
         reminderRecyclerView.addItemDecoration( new DividerItemDecoration(getContext(),DividerItemDecoration.VERTICAL ));
 
@@ -144,6 +144,11 @@ public class RemindersFragment extends Fragment {
 
             }
         });
+
+        frameLayout = v.findViewById(R.id.linearLayout123);
+
+        ItemTouchHelper.SimpleCallback simpleCallback = new RecyclerItemTouchHelper(0, ItemTouchHelper.LEFT, this);
+        new ItemTouchHelper(simpleCallback).attachToRecyclerView(reminderRecyclerView);
 
         addBtn = v.findViewById(R.id.addBtnReminder);
         addBtn.setOnClickListener(new View.OnClickListener() {
@@ -207,9 +212,10 @@ public class RemindersFragment extends Fragment {
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onDestroyView() {
+        super.onDestroyView();
         remRef.removeEventListener(childEventListener);
+        posRef.removeEventListener(childEventListener);
         childEventListener = null;
     }
 
@@ -309,5 +315,18 @@ public class RemindersFragment extends Fragment {
 
 
 
+    }
+
+    @Override
+    public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction, int position) {
+        if (viewHolder instanceof ReminderRecyclerViewAdapter.MyViewHolder) {
+
+            int i = viewHolder.getAdapterPosition();
+
+            removeReminder(i);
+
+            Snackbar snackbar = Snackbar.make(frameLayout, "Напоминание удалено", Snackbar.LENGTH_SHORT);
+            snackbar.show();
+        }
     }
 }
